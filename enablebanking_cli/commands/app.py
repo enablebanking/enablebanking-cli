@@ -22,6 +22,13 @@ class Environment(str, Enum):
 class AppCommand(BaseCommand):
     def __init__(self, parent_subparsers):
         self.parser = parent_subparsers.add_parser("app", help="Application commands")
+        self.parser.add_argument(
+            "-u",
+            "--user",
+            type=str,
+            help="ID of an authenticated user to be used (using default if not provided)",
+            required=False,
+        )
         self.subparsers = self.parser.add_subparsers(
             title="Application Commands",
             dest="app_command")
@@ -41,19 +48,36 @@ class AppCommand(BaseCommand):
             help=f"Environment, which the application will use",
             required=True,
         )
+        register_parser.add_argument(
+            "-r",
+            "--redirect-urls",
+            type=str,
+            nargs="+",
+            help=f"Redirect URL(s) allowed for the application",
+            required=True,
+        )
+        register_parser.add_argument(
+            "--cert-path",
+            type=str,
+            help=f"Redirect URL(s) allowed for the application",
+            required=True,
+        )
         self.subparsers.add_parser("share", help="Share an application")
 
     def register(self, args):
         print("Registering an application...")
         cp_store = CpStore(args.root_path)
-        cp_client = CpClient(args.cp_domain, cp_store.get_default_user_path())
+        cp_client = CpClient(args.cp_domain, cp_store.get_user_path(args.user))
+        with open(args.cert_path, "r") as f:
+            cert_content = f.read()
         response = cp_client.register_application({
             "name": args.name,
-            "certificate": "",
+            "certificate": cert_content,
             "environment": args.environment,
-            "redirect_urls": ["http://localhost:8888/auth_cb"],
+            "redirect_urls": args.redirect_urls,
         })
         if response.status != 200:
             print(f"{response.status} response from the applications API: {response.read().decode()}")
             return 1
-        print(response.read().decode())
+        response_data = json.loads(response.read().decode())
+        print(f"The application is registered under ID {response_data['app_id']}")

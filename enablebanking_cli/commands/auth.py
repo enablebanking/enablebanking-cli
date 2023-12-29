@@ -37,7 +37,10 @@ class AuthCommand(BaseCommand):
         self.subparsers = self.parser.add_subparsers(
             title="Authentication Commands",
             dest="auth_command")
-        login_parser = self.subparsers.add_parser("login", help="Log in")
+        default_parser = self.subparsers.add_parser("default", help="Set default authenticated user")
+        default_parser.add_argument("user", type=str, help="User ID")
+        list_parser = self.subparsers.add_parser("list", help="List authenticated users")
+        login_parser = self.subparsers.add_parser("login", help="Log in as a control panel user")
         login_parser.add_argument("email", type=str, help="User's email")
         login_parser.add_argument(
             "--callback-port",
@@ -45,7 +48,7 @@ class AuthCommand(BaseCommand):
             default=8888,
             help="Port number of the authentication callback server",
         )
-        self.subparsers.add_parser("logout", help="Log out")
+        logout_parser = self.subparsers.add_parser("logout", help="Log out")
 
     def login(self, args):
         cp_client = CpClient(args.cp_domain)
@@ -85,3 +88,26 @@ class AuthCommand(BaseCommand):
             f.write(json.dumps(auth_data))
         cp_store.set_default_user_filename(user_filename)
         print("Done!")
+
+    def logout(self, args):
+        pass
+
+    def list(self, args):
+        cp_store = CpStore(args.root_path)
+        users_data = cp_store.load_user_files()
+        for user_data in users_data:
+            print("*" if user_data["_default"] else " ", user_data["localId"], user_data["email"])
+
+    def default(self, args):
+        cp_store = CpStore(args.root_path)
+        users_data = cp_store.load_user_files()
+        is_user_found = False
+        for user_data in users_data:
+            if user_data["localId"] == args.user:
+                is_user_found = True
+                break
+        if not is_user_found:
+            print(f"User with ID '{args.user}' is not authenticated")
+            return 1
+        cp_store.set_default_user_filename(f"{args.user}.json")
+        print(f"Default user switched to {args.user} ({user_data['email']})")
