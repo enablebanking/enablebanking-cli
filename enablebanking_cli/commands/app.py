@@ -3,9 +3,9 @@ import os
 
 from enum import Enum
 
-from commands.base import BaseCommand
-from cp_client import CpClient
-from cp_store import CpStore
+from ..cp_client import CpClient
+from ..cp_store import CpStore
+from .base import BaseCommand
 
 
 class Environment(str, Enum):

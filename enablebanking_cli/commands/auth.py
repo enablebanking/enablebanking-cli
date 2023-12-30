@@ -5,9 +5,9 @@ import threading
 
 from urllib.parse import parse_qs, urlparse
 
-from commands.base import BaseCommand
-from cp_client import CpClient
-from cp_store import CpStore
+from ..cp_client import CpClient
+from ..cp_store import CpStore
+from .base import BaseCommand
 
 
 class AuthCallbackRequestHandler(http.server.BaseHTTPRequestHandler):
@@ -37,10 +37,16 @@ class AuthCommand(BaseCommand):
         self.subparsers = self.parser.add_subparsers(
             title="Authentication Commands",
             dest="auth_command")
-        default_parser = self.subparsers.add_parser("default", help="Set default authenticated user")
+        default_parser = self.subparsers.add_parser(
+            "default",
+            help="Set an authenticated user to be used by default",
+        )
         default_parser.add_argument("user", type=str, help="User ID")
-        list_parser = self.subparsers.add_parser("list", help="List authenticated users")
-        login_parser = self.subparsers.add_parser("login", help="Log in as a control panel user")
+        list_parser = self.subparsers.add_parser("list", help="Display authenticated users")
+        login_parser = self.subparsers.add_parser(
+            "login",
+            help="Sign in as a user of the Enable Banking Control Panel",
+        )
         login_parser.add_argument("email", type=str, help="User's email")
         login_parser.add_argument(
             "--callback-port",
@@ -48,7 +54,10 @@ class AuthCommand(BaseCommand):
             default=8888,
             help="Port number of the authentication callback server",
         )
-        logout_parser = self.subparsers.add_parser("logout", help="Log out")
+        logout_parser = self.subparsers.add_parser(
+            "logout",
+            help="Remove locally stored credentials of an authenticated user",
+        )
         logout_parser.add_argument(
             "-u",
             "--user",

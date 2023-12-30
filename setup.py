@@ -27,7 +27,7 @@ REQUIRED = [
 
 here = os.path.abspath(os.path.dirname(__file__))
 
-with io.open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
+with io.open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = '\n' + f.read()
 
 about = {}
@@ -83,7 +83,7 @@ setup(
     author_email=EMAIL,
     python_requires=REQUIRES_PYTHON,
     url=URL,
-    packages=['enablebanking_cli'],
+    packages=['enablebanking_cli', 'enablebanking_cli.commands'],
     entry_points={
         'console_scripts': ['enablebanking=enablebanking_cli.cli:main'],
     },

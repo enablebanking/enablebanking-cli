@@ -11,3 +11,19 @@ This project also aims to implement simple yet powerful command-line interface f
 data and initiating payments through open banking APIs integrated by Enable Banking. This functionality
 is based on the [api.enablebanking.com](https://api.enablebanking.com/) aggregating Open Banking APIs
 (also known as PSD2 APIs) of a large number of financial institutions in Europe.
+
+## How to run
+
+```sh
+python3 -m enablebanking_cli
+```
+
+## How to package
+
+```sh
+pip3 install --upgrade build
+```
+
+```sh
+python3 -m build
+```
