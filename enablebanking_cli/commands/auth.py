@@ -49,6 +49,13 @@ class AuthCommand(BaseCommand):
             help="Port number of the authentication callback server",
         )
         logout_parser = self.subparsers.add_parser("logout", help="Log out")
+        logout_parser.add_argument(
+            "-u",
+            "--user",
+            type=str,
+            help="ID of an authenticated user to be used (using default if not provided)",
+            required=False,
+        )
 
     def login(self, args):
         cp_client = CpClient(args.cp_domain)
@@ -90,7 +97,11 @@ class AuthCommand(BaseCommand):
         print("Done!")
 
     def logout(self, args):
-        pass
+        cp_store = CpStore(args.root_path)
+        cp_client = CpClient(args.cp_domain, cp_store.get_user_path(args.user))
+        cp_client._load_auth_data()
+        cp_client.make_token() # refreshing token to invalidate stored access and refresh tokens
+        cp_store.remove_user_file(args.user)
 
     def list(self, args):
         cp_store = CpStore(args.root_path)
