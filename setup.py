@@ -98,17 +98,20 @@ setup(
         'Environment :: Console',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
+        'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10',
-        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3 :: Only',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
     ],
     # $ setup.py publish support.
     cmdclass={
         'upload': UploadCommand,
+    },
+    project_urls={
+        'Source': 'https://github.com/enablebanking/enablebanking-cli',
+        'Changelog': 'https://github.com/enablebanking/enablebanking-cli/blob/main/CHANGELOG.md',
     },
 )
