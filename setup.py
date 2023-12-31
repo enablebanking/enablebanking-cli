@@ -13,10 +13,10 @@ from setuptools import find_packages, setup, Command
 
 # Package meta-data.
 NAME = 'enablebanking_cli'
-DESCRIPTION = 'Enable Banking Command Line Interface.'
+DESCRIPTION = 'Enable Banking Command Line Interface'
 URL = 'https://github.com/enablebanking/enablebanking-cli'
 EMAIL = 'support.api@enablebanking.com'
-AUTHOR = 'Enable Banking Oy'
+AUTHOR = 'Enable Banking team'
 REQUIRES_PYTHON = '>=3.8.0'
 VERSION = None
 LICENSE = 'Apache License 2.0'
