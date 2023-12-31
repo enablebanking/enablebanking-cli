@@ -15,8 +15,8 @@ from setuptools import find_packages, setup, Command
 NAME = 'enablebanking_cli'
 DESCRIPTION = 'Enable Banking Command Line Interface.'
 URL = 'https://github.com/enablebanking/enablebanking-cli'
-EMAIL = 'fedor@enablebanking.com'
-AUTHOR = 'Fedor Tyurin'
+EMAIL = 'support.api@enablebanking.com'
+AUTHOR = 'Enable Banking Oy'
 REQUIRES_PYTHON = '>=3.8.0'
 VERSION = None
 LICENSE = 'Apache License 2.0'
