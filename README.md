@@ -113,3 +113,17 @@ pip3 install --upgrade build
 ```sh
 python3 -m build
 ```
+
+## Plans
+
+The following commands and groups of commands are planned to be implemented:
+
+- `app logs`, the command providing the possibility to fetch API request/response logs;
+- `accounts`, the group of commands providing the possibility to authorise access to accounts in
+  multiple ASPSPs (i.e. banks and similar financial institutions), fetch account balances and
+  transactions, as well as perform periodic data synchronisation;
+- `payments`, the group of commands providing the possibility to initiate and confirm payments;
+- `data-insights`, the group of commands providing the possibility to retrieve statistical information
+  about details on account information and payments being provided by different ASPSPs.
+
+Suggest features and report bugs by submitting issues in the Github project [here](https://github.com/enablebanking/enablebanking-cli/issues/new).
