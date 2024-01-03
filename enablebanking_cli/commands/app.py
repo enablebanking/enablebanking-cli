@@ -32,6 +32,23 @@ class AppCommand(BaseCommand):
         self.subparsers = self.parser.add_subparsers(
             title="Application Commands",
             dest="app_command")
+        default_parser = self.subparsers.add_parser(
+            "default",
+            help="Set an application to be used by default",
+        )
+        default_parser.add_argument("app", type=str, help="Application ID")
+        list_parser = self.subparsers.add_parser("list", help="List locally available applications")
+        requests_parser = self.subparsers.add_parser(
+            "requests",
+            help="Fetch logs of requests made by an application",
+        )
+        requests_parser.add_argument(
+            "-a",
+            "--app",
+            type=str,
+            help="Application ID (using default if not provided)",
+            required=False,
+        )
         register_parser = self.subparsers.add_parser("register", help="Register an application")
         register_parser.add_argument(
             "-n",
@@ -39,6 +56,13 @@ class AppCommand(BaseCommand):
             type=str,
             help="Name of the application being registered",
             required=True,
+        )
+        register_parser.add_argument(
+            "-d",
+            "--description",
+            type=str,
+            help="Description of the application being registered",
+            required=False,
         )
         register_parser.add_argument(
             "-e",
@@ -57,10 +81,18 @@ class AppCommand(BaseCommand):
             required=True,
         )
         register_parser.add_argument(
+            "-c",
             "--cert-path",
             type=str,
-            help=f"Redirect URL(s) allowed for the application",
+            help=f"Path to a certificate or a public key of the application",
             required=True,
+        )
+        register_parser.add_argument(
+            "-k",
+            "--key-path",
+            type=str,
+            help=f"Path to a private key of the application (used to generate or verify public key)",
+            required=False,
         )
         self.subparsers.add_parser("share", help="Share an application")
 
@@ -72,6 +104,7 @@ class AppCommand(BaseCommand):
             cert_content = f.read()
         response = cp_client.register_application({
             "name": args.name,
+            "description": args.description,
             "certificate": cert_content,
             "environment": args.environment,
             "redirect_urls": args.redirect_urls,
@@ -81,3 +114,53 @@ class AppCommand(BaseCommand):
             return 1
         response_data = json.loads(response.read().decode())
         print(f"The application is registered under ID {response_data['app_id']}")
+        cp_store = CpStore(args.root_path)
+        os.makedirs(cp_store.cp_apps_path, exist_ok=True)
+        app_filename = cp_store.get_app_filename(response_data["app_id"])
+        with open(os.path.join(cp_store.cp_apps_path, app_filename), "w") as f:
+            f.write(json.dumps({
+                "kid": response_data["app_id"],
+                "name": args.name,
+                "description": args.description,
+                "certificate": cert_content,
+                "key_path": args.key_path,
+                "environment": args.environment,
+                "redirect_urls": args.redirect_urls,
+            }, indent=4))
+        cp_store.set_default_app_filename(app_filename)
+        print("Done!")
+
+    def list(self, args):
+        cp_store = CpStore(args.root_path)
+        apps_data = cp_store.load_app_files()
+        for app_data in apps_data:
+            print("*" if app_data["_default"] else " ", app_data["kid"], app_data["name"])
+
+    def default(self, args):
+        cp_store = CpStore(args.root_path)
+        apps_data = cp_store.load_app_files()
+        is_app_found = False
+        for app_data in apps_data:
+            if app_data["kid"] == args.app:
+                is_app_found = True
+                break
+        if not is_app_found:
+            print(f"Application with ID '{args.app}' is not available")
+            return 1
+        cp_store.set_default_app_filename(cp_store.get_app_filename(args.app))
+        print(f"Default application switched to {args.app} ({app_data['name']})")
+
+    def requests(self, args):
+        cp_store = CpStore(args.root_path)
+        cp_client = CpClient(args.cp_domain, cp_store.get_user_path(args.user))
+        app_id = args.app if args.app is not None else cp_store.load_app_file()["kid"]
+        print("Fetching requests...")
+        response = cp_client.fetch_requests(app_id)
+        if response.status != 200:
+            print(f"{response.status} response from the requests API: {response.read().decode()}")
+            return 1
+        response_data = json.loads(response.read().decode())
+        requests = response_data["requests"]
+        print(f"Fetched {len(requests)} requests" + (":" if len(requests) else "."))
+        print(json.dumps(requests, indent=4))
+        print("Done!")
