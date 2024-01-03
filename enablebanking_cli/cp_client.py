@@ -89,9 +89,23 @@ class CpClient:
         return self._request(
             "POST",
             "/api/applications",
-            json.dumps(app_data),
+            json.dumps({k: v for k, v in app_data.items() if v is not None}),
             {
                 "content-type": "application/json",
+                "authorization": f"Bearer {self.auth_data['idToken']}",
+            },
+        )
+
+    @auth
+    def fetch_requests(self, app_id):
+        query = urllib.parse.urlencode({
+            "appId": app_id,
+        })
+        return self._request(
+            "GET",
+            f"/api/requests?{query}",
+            None,
+            {
                 "authorization": f"Bearer {self.auth_data['idToken']}",
             },
         )

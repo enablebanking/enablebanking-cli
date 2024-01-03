@@ -118,7 +118,6 @@ python3 -m build
 
 The following commands and groups of commands are planned to be implemented:
 
-- `app logs`, the command providing the possibility to fetch API request/response logs;
 - `accounts`, the group of commands providing the possibility to authorise access to accounts in
   multiple ASPSPs (i.e. banks and similar financial institutions), fetch account balances and
   transactions, as well as perform periodic data synchronisation;
