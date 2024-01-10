@@ -30,7 +30,7 @@ class CpClient:
             if self.auth_data is None:
                 self._load_auth_data()
             response = endpoint_method(self, *args, **kwargs)
-            if response.status == 403:
+            if response.status == 401:
                 r = self.make_token()
                 if r.status != 200:
                     raise Exception(f"Unable to refresh token: {r.read().decode()}")
