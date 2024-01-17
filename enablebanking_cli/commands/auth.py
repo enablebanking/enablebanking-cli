@@ -99,9 +99,9 @@ class AuthCommand(BaseCommand):
         print(f"Authenticated: {json.dumps(auth_data, indent=4)}")
         cp_store = CpStore(args.root_path)
         os.makedirs(cp_store.cp_users_path, exist_ok=True)
-        user_filename = f"{auth_data['localId']}.json"
+        user_filename = cp_store.get_user_filename(auth_data["localId"])
         with open(os.path.join(cp_store.cp_users_path, user_filename), "w") as f:
-            f.write(json.dumps(auth_data))
+            f.write(json.dumps(auth_data, indent=4))
         cp_store.set_default_user_filename(user_filename)
         print("Done!")
 
@@ -129,5 +129,5 @@ class AuthCommand(BaseCommand):
         if not is_user_found:
             print(f"User with ID '{args.user}' is not authenticated")
             return 1
-        cp_store.set_default_user_filename(f"{args.user}.json")
+        cp_store.set_default_user_filename(cp_store.get_user_filename(args.user))
         print(f"Default user switched to {args.user} ({user_data['email']})")
