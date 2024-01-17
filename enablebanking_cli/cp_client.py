@@ -97,10 +97,50 @@ class CpClient:
         )
 
     @auth
-    def fetch_requests(self, app_id):
-        query = urllib.parse.urlencode({
+    def fetch_requests(
+            self,
+            app_id,
+            account_id=None,
+            aspsp_country=None,
+            aspsp_name=None,
+            auth_approach=None,
+            auth_method=None,
+            authorization_id=None,
+            endpoint_name=None,
+            payment_id=None,
+            psu_type=None,
+            response_code=None,
+            session_id=None,
+            session_status=None,
+    ):
+        params = {
             "appId": app_id,
-        })
+        }
+        if account_id:
+            params["accountId"] = account_id
+        if aspsp_country:
+            params["country"] = aspsp_country
+        if aspsp_name:
+            params["brand"] = aspsp_name
+        if auth_approach:
+            params["authApproach"] = auth_approach
+        if auth_method:
+            params["authMethod"] = auth_method
+        if authorization_id:
+            params["autorizationId"] = authorization_id
+        if endpoint_name:
+            params["endpoint"] = endpoint_name
+        if payment_id:
+            params["paymentId"] = payment_id
+        if psu_type:
+            params["psuType"] = psu_type
+        if response_code:
+            params["responseCode"] = response_code
+        if session_id:
+            params["sessionId"] = session_id
+        if session_status:
+            params["sessionStatus"] = session_status
+        query = urllib.parse.urlencode(params)
         return self._request(
             "GET",
             f"/api/requests?{query}",

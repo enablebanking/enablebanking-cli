@@ -49,6 +49,78 @@ class AppCommand(BaseCommand):
             help="Application ID (using default if not provided)",
             required=False,
         )
+        requests_parser.add_argument(
+            "--account-id",
+            type=str,
+            help="Filtering requests associated with an account by its ID",
+            required=False,
+        )
+        requests_parser.add_argument(
+            "--aspsp-country",
+            type=str,
+            help="Filtering requests by a country (ISO 3166 code)",
+            required=False,
+        )
+        requests_parser.add_argument(
+            "--aspsp-name",
+            type=str,
+            help="Filtering requests by ASPSP name",
+            required=False,
+        )
+        requests_parser.add_argument(
+            "--auth-approach",
+            type=str,
+            help="Filtering requests by an authorization approach",
+            required=False,
+        )
+        requests_parser.add_argument(
+            "--auth-method",
+            type=str,
+            help="Filtering requests by an authorization method",
+            required=False,
+        )
+        requests_parser.add_argument(
+            "--authorization-id",
+            type=str,
+            help="Filtering requests associated with an authorization by its ID",
+            required=False,
+        )
+        requests_parser.add_argument(
+            "--endpoint-name",
+            type=str,
+            help="Filtering requests by an endpoint name",
+            required=False,
+        )
+        requests_parser.add_argument(
+            "--payment-id",
+            type=str,
+            help="Filtering requests associated with a payment by its ID",
+            required=False,
+        )
+        requests_parser.add_argument(
+            "--psu-type",
+            type=str,
+            help="Filtering requests by PSU type",
+            required=False,
+        )
+        requests_parser.add_argument(
+            "--response-code",
+            type=str,
+            help="Filtering requests by a response code",
+            required=False,
+        )
+        requests_parser.add_argument(
+            "--session-id",
+            type=str,
+            help="Filtering requests associated with a session by its ID",
+            required=False,
+        )
+        requests_parser.add_argument(
+            "--session-status",
+            type=str,
+            help="Filtering requests by a session status",
+            required=False,
+        )
         register_parser = self.subparsers.add_parser("register", help="Register an application")
         register_parser.add_argument(
             "-n",
@@ -155,7 +227,21 @@ class AppCommand(BaseCommand):
         cp_client = CpClient(args.cp_domain, cp_store.get_user_path(args.user))
         app_id = args.app if args.app is not None else cp_store.load_app_file()["kid"]
         print("Fetching requests...")
-        response = cp_client.fetch_requests(app_id)
+        response = cp_client.fetch_requests(
+            app_id,
+            account_id=args.account_id,
+            aspsp_country=args.aspsp_country,
+            aspsp_name=args.aspsp_name,
+            auth_approach=args.auth_approach,
+            auth_method=args.auth_method,
+            authorization_id=args.authorization_id,
+            endpoint_name=args.endpoint_name,
+            payment_id=args.payment_id,
+            psu_type=args.psu_type,
+            response_code=args.response_code,
+            session_id=args.session_id,
+            session_status=args.session_status,
+        )
         if response.status != 200:
             print(f"{response.status} response from the requests API: {response.read().decode()}")
             return 1
