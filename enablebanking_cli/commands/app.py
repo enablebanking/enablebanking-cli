@@ -123,10 +123,26 @@ class AppCommand(BaseCommand):
         )
         register_parser = self.subparsers.add_parser("register", help="Register an application")
         register_parser.add_argument(
+            "-e",
+            "--environment",
+            type=Environment,
+            choices=[*Environment],
+            help=f"Environment, which the application will use",
+            required=True,
+        )
+        register_parser.add_argument(
             "-n",
             "--name",
             type=str,
             help="Name of the application being registered",
+            required=True,
+        )
+        register_parser.add_argument(
+            "-r",
+            "--redirect-urls",
+            type=str,
+            nargs="+",
+            help=f"Redirect URL(s) allowed for the application",
             required=True,
         )
         register_parser.add_argument(
@@ -137,20 +153,22 @@ class AppCommand(BaseCommand):
             required=False,
         )
         register_parser.add_argument(
-            "-e",
-            "--environment",
-            type=Environment,
-            choices=[*Environment],
-            help=f"Environment, which the application will use",
-            required=True,
+            "--gdpr-email",
+            type=str,
+            help=f"Email of data protection matters",
+            required=False,
         )
         register_parser.add_argument(
-            "-r",
-            "--redirect-urls",
+            "--privacy-url",
             type=str,
-            nargs="+",
-            help=f"Redirect URL(s) allowed for the application",
-            required=True,
+            help=f"URL of the application's privacy policy",
+            required=False,
+        )
+        register_parser.add_argument(
+            "--terms-url",
+            type=str,
+            help=f"URL of the application's terms of service",
+            required=False,
         )
         register_parser.add_argument(
             "-c",
@@ -176,10 +194,13 @@ class AppCommand(BaseCommand):
             cert_content = f.read()
         response = cp_client.register_application({
             "name": args.name,
-            "description": args.description,
             "certificate": cert_content,
             "environment": args.environment,
             "redirect_urls": args.redirect_urls,
+            "description": args.description,
+            "gdpr_email": args.gdpr_email,
+            "privacy_url": args.privacy_url,
+            "terms_url": args.terms_url,
         })
         if response.status != 200:
             print(f"{response.status} response from the applications API: {response.read().decode()}")
