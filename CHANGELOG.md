@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.0 - 2024-02-17
 
 - Added the `app requests` command for fetching the log of requests made by an application.
 - Made the `app register` command to store application properties locally, so that they are easy to
