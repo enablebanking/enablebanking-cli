@@ -1,6 +1,7 @@
 import json
 import os
 
+from datetime import datetime
 from enum import Enum
 
 from ..cp_client import CpClient
@@ -50,75 +51,96 @@ class AppCommand(BaseCommand):
             required=False,
         )
         requests_parser.add_argument(
-            "--account-id",
+            "--filter-account-id",
+            metavar="ACCOUNT_ID",
             type=str,
             help="Filtering requests associated with an account by its ID",
             required=False,
         )
         requests_parser.add_argument(
-            "--aspsp-country",
+            "--filter-aspsp-country",
+            metavar="ASPSP_COUNTRY",
             type=str,
             help="Filtering requests by a country (ISO 3166 code)",
             required=False,
         )
         requests_parser.add_argument(
-            "--aspsp-name",
+            "--filter-aspsp-name",
+            metavar="ASPSP_NAME",
             type=str,
             help="Filtering requests by ASPSP name",
             required=False,
         )
         requests_parser.add_argument(
-            "--auth-approach",
+            "--filter-auth-approach",
+            metavar="AUTH_APPROACH",
             type=str,
             help="Filtering requests by an authorization approach",
             required=False,
         )
         requests_parser.add_argument(
-            "--auth-method",
+            "--filter-auth-method",
+            metavar="AUTH_METHOD",
             type=str,
             help="Filtering requests by an authorization method",
             required=False,
         )
         requests_parser.add_argument(
-            "--authorization-id",
+            "--filter-authorization-id",
+            metavar="AUTHORIZATION_ID",
             type=str,
             help="Filtering requests associated with an authorization by its ID",
             required=False,
         )
         requests_parser.add_argument(
-            "--endpoint-name",
+            "--filter-endpoint-name",
+            metavar="ENDPOINT_NAME",
             type=str,
             help="Filtering requests by an endpoint name",
             required=False,
         )
         requests_parser.add_argument(
-            "--payment-id",
+            "--filter-payment-id",
+            metavar="PAYMENT_ID",
             type=str,
             help="Filtering requests associated with a payment by its ID",
             required=False,
         )
         requests_parser.add_argument(
-            "--psu-type",
+            "--filter-psu-type",
+            metavar="PSU_TYPE",
             type=str,
             help="Filtering requests by PSU type",
             required=False,
         )
         requests_parser.add_argument(
-            "--response-code",
+            "--filter-response-code",
+            metavar="RESPONSE_CODE",
             type=str,
             help="Filtering requests by a response code",
             required=False,
         )
         requests_parser.add_argument(
-            "--session-id",
+            "--filter-session-id",
+            metavar="SESSION_ID",
             type=str,
             help="Filtering requests associated with a session by its ID",
             required=False,
         )
         requests_parser.add_argument(
-            "--session-status",
+            "--filter-session-status",
+            metavar="",
             type=str,
             help="Filtering requests by a session status",
+            required=False,
+        )
+        requests_parser.add_argument(
+            "-o",
+            "--outfile",
+            nargs="?",
+            const="default",
+            type=str,
+            help="Outputing requests to a file instead of printing to console",
             required=False,
         )
         register_parser = self.subparsers.add_parser("register", help="Register an application")
@@ -250,24 +272,36 @@ class AppCommand(BaseCommand):
         print("Fetching requests...")
         response = cp_client.fetch_requests(
             app_id,
-            account_id=args.account_id,
-            aspsp_country=args.aspsp_country,
-            aspsp_name=args.aspsp_name,
-            auth_approach=args.auth_approach,
-            auth_method=args.auth_method,
-            authorization_id=args.authorization_id,
-            endpoint_name=args.endpoint_name,
-            payment_id=args.payment_id,
-            psu_type=args.psu_type,
-            response_code=args.response_code,
-            session_id=args.session_id,
-            session_status=args.session_status,
+            account_id=args.filter_account_id,
+            aspsp_country=args.filter_aspsp_country,
+            aspsp_name=args.filter_aspsp_name,
+            auth_approach=args.filter_auth_approach,
+            auth_method=args.filter_auth_method,
+            authorization_id=args.filter_authorization_id,
+            endpoint_name=args.filter_endpoint_name,
+            payment_id=args.filter_payment_id,
+            psu_type=args.filter_psu_type,
+            response_code=args.filter_response_code,
+            session_id=args.filter_session_id,
+            session_status=args.filter_session_status,
         )
         if response.status != 200:
             print(f"{response.status} response from the requests API: {response.read().decode()}")
             return 1
         response_data = json.loads(response.read().decode())
         requests = response_data["requests"]
-        print(f"Fetched {len(requests)} requests" + (":" if len(requests) else "."))
-        print(json.dumps(requests, indent=4))
+        print(f"Fetched {len(requests)} request" + ("s" if len(requests) != 1 else "") + ".")
+        if len(requests):
+            requests_text = json.dumps(requests, indent=4)
+            if args.outfile is None:
+                print(requests_text)
+            else:
+                if args.outfile == "default":
+                    now = datetime.now().strftime("%Y%m%d%H%M%S")
+                    filename = f"{app_id}-{now}.json"
+                else:
+                    filename = args.outfile
+                print(f"Saving requests to {filename}...")
+                with open(filename, "w") as f:
+                    f.write(requests_text)
         print("Done!")
