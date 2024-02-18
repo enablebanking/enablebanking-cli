@@ -1,7 +1,7 @@
 import json
 import os
 
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 
 from ..cp_client import CpClient
@@ -141,6 +141,33 @@ class AppCommand(BaseCommand):
             const="default",
             type=str,
             help="Outputing requests to a file instead of printing to console",
+            required=False,
+        )
+        logs_parser = self.subparsers.add_parser(
+            "request-logs",
+            help="Fetch logs for one request made by an application",
+        )
+        logs_parser.add_argument(
+            "-r",
+            "--request",
+            type=str,
+            help="ID of a request for which logs are to be fetched",
+            required=True,
+        )
+        logs_parser.add_argument(
+            "-o",
+            "--outfile",
+            nargs="?",
+            const="default",
+            type=str,
+            help="Outputing request logs to a file instead of printing to console",
+            required=False,
+        )
+        logs_parser.add_argument(
+            "-t",
+            "--time",
+            type=str,
+            help="Time when request was made (in ISO 8601 valid format). Today, if not provided",
             required=False,
         )
         register_parser = self.subparsers.add_parser("register", help="Register an application")
@@ -304,4 +331,39 @@ class AppCommand(BaseCommand):
                 print(f"Saving requests to {filename}...")
                 with open(filename, "w") as f:
                     f.write(requests_text)
+        print("Done!")
+
+    def request_logs(self, args):
+        cp_store = CpStore(args.root_path)
+        cp_client = CpClient(args.cp_domain, cp_store.get_user_path(args.user))
+        if args.time:
+            request_dt = datetime.fromisoformat(args.time)
+        else:
+            request_dt = datetime.now()
+        if request_dt.tzinfo:
+            request_dt = request_dt.astimezone(timezone.utc)
+        print("Fetching request logs...")
+        response = cp_client.fetch_request_logs(
+            args.request,
+            timestamp=request_dt.date().isoformat()
+        )
+        if response.status != 200:
+            print(f"{response.status} response from the requests API: {response.read().decode()}")
+            return 1
+        response_data = json.loads(response.read().decode())
+        logs = response_data["logs"]
+        print(f"Fetched {len(logs)} log record" + ("s" if len(logs) != 1 else "") + ".")
+        if len(logs):
+            logs_text = json.dumps(logs, indent=4)
+            if args.outfile is None:
+                print(logs_text)
+            else:
+                if args.outfile == "default":
+                    now = datetime.now().strftime("%Y%m%d%H%M%S")
+                    filename = f"logs-{args.request}.json"
+                else:
+                    filename = args.outfile
+                print(f"Saving logs to {filename}...")
+                with open(filename, "w") as f:
+                    f.write(logs_text)
         print("Done!")

@@ -149,3 +149,24 @@ class CpClient:
                 "authorization": f"Bearer {self.auth_data['idToken']}",
             },
         )
+
+    @auth
+    def fetch_request_logs(
+            self,
+            request_id,
+            timestamp=None,
+    ):
+        params = {
+            "requestId": request_id,
+        }
+        if timestamp:
+            params["timestamp"] = timestamp
+        query = urllib.parse.urlencode(params)
+        return self._request(
+            "GET",
+            f"/api/requestLogs?{query}",
+            None,
+            {
+                "authorization": f"Bearer {self.auth_data['idToken']}",
+            },
+        )
