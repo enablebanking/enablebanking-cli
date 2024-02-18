@@ -135,6 +135,15 @@ class AppCommand(BaseCommand):
             required=False,
         )
         requests_parser.add_argument(
+            "-l",
+            "--logs",
+            nargs="?",
+            const=True,
+            type=bool,
+            help="Fetching logs for each requests",
+            required=False,
+        )
+        requests_parser.add_argument(
             "-o",
             "--outfile",
             nargs="?",
@@ -319,6 +328,26 @@ class AppCommand(BaseCommand):
         requests = response_data["requests"]
         print(f"Fetched {len(requests)} request" + ("s" if len(requests) != 1 else "") + ".")
         if len(requests):
+            if args.logs:
+                for request in requests:
+                    logs_id = request.get("logs_id")
+                    if not logs_id:
+                        continue
+                    print(f"Fetching logs {request['logs_id']}...")
+                    logs_response = cp_client.fetch_request_logs(
+                        logs_id,
+                        timestamp=request["timestamp"]["value"],
+                    )
+                    if logs_response.status != 200:
+                        print(
+                            f"{logs_response.status} response from the request logs API:"
+                            f" {logs_response.read().decode()}"
+                        )
+                        continue
+                    logs_response_data = json.loads(logs_response.read().decode())
+                    logs = logs_response_data["logs"]
+                    print(f"Fetched {len(logs)} log record" + ("s" if len(logs) != 1 else "") + ".")
+                    request["logs"] = logs
             requests_text = json.dumps(requests, indent=4)
             if args.outfile is None:
                 print(requests_text)
@@ -348,7 +377,7 @@ class AppCommand(BaseCommand):
             timestamp=request_dt.date().isoformat()
         )
         if response.status != 200:
-            print(f"{response.status} response from the requests API: {response.read().decode()}")
+            print(f"{response.status} response from the request logs API: {response.read().decode()}")
             return 1
         response_data = json.loads(response.read().decode())
         logs = response_data["logs"]
