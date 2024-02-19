@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.1 - 2024-02-19
 
 - Added the `app request-logs` command for fetching logs associated with a requests.
 - Added `-l/--logs` parameter for the `app request` command for fetching logs associated with requests.
