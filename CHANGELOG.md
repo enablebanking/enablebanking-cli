@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Added the `aspsp status` command for fetching ASPSP integration status information.
+- Fixed a small issue in the base command handled.
+
 ## 0.2.1 - 2024-02-19
 
 - Added the `app request-logs` command for fetching logs associated with a requests.

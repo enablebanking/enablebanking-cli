@@ -170,3 +170,14 @@ class CpClient:
                 "authorization": f"Bearer {self.auth_data['idToken']}",
             },
         )
+
+    @auth
+    def fetch_today_stats(self):
+        return self._request(
+            "GET",
+            f"/api/get_today_stats",
+            None,
+            {
+                "authorization": f"Bearer {self.auth_data['idToken']}",
+            },
+        )

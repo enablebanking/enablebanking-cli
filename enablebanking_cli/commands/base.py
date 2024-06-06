@@ -1,6 +1,8 @@
 class BaseCommand:
     def handle(self, args):
-        command = getattr(args, self.subparsers.dest).replace("-", "_")
+        command = (lambda c: c.replace("-", "_") if c else None)(
+            getattr(args, self.subparsers.dest)
+        )
         if command:
             if not hasattr(self, command):
                 print(f"Command {command} is not implemented")
