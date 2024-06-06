@@ -3,6 +3,7 @@ import os
 from argparse import ArgumentParser
 
 from .commands.app import AppCommand
+from .commands.aspsp import AspspCommand
 from .commands.auth import AuthCommand
 
 
@@ -30,6 +31,7 @@ def main():
 
     commands = [
         AppCommand(subparsers),
+        AspspCommand(subparsers),
         AuthCommand(subparsers),
     ]
 
