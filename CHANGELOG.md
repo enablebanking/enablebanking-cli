@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.2 - 2024-06-06
 
 - Added the `aspsp status` command for fetching ASPSP integration status information.
 - Fixed a small issue in the base command handled.
